@@ -1,14 +1,19 @@
 'use strict';
 
 
-var product = [];
+var allProducts = [];
 var totalClicksAllowed = 25;
 var clicks = 0;
-var myContainer = document.getElementById('container');
+var renderQ = [];
+var myContainer = document.getElementById('images');
 var imgOne = document.getElementById('image-one');
 var imgTwo = document.getElementById('image-two');
 var imgThree = document.getElementById('image-three');
 var myList = document.getElementById('list');
+var ctx = document.getElementById('myChart').getContext('2d');
+var nameArray = [];
+var votesArray = [];
+var viewsArray = [];
 
 // constructor
 function Product(name) {
@@ -16,11 +21,11 @@ function Product(name) {
   this.src = `img/${name}.jpg`;
   this.views = 0;
   this.votes = 0;
-  product.push(this);
+  allProducts.push(this);
 }
 // function
 function getRandomProductIndex() {
-  return Math.floor(Math.random() * product.length);
+  return Math.floor(Math.random() * allProducts.length);
 }
 
 // exectuable code
@@ -52,46 +57,93 @@ function renderProduct() {
 
   while (productOne === productTwo) {
     productTwo = getRandomProductIndex();
-
   }
+  imgOne.src = allProducts[productOne].src;
+  imgOne.alt = allProducts[productOne].name;
+  allProducts[productOne].views++;
 
-  imgOne.src = product[productOne].src;
-  imgOne.alt = product[productOne].name;
-  product[productOne].views++;
+  imgTwo.src = allProducts[productTwo].src;
+  imgTwo.alt = allProducts[productTwo].name;
+  allProducts[productTwo].views++;
 
-  imgTwo.src = product[productTwo].src;
-  imgTwo.alt = product[productTwo].name;
-  product[productTwo].views++;
-
-  imgThree.src = product[productThree].src;
-  imgThree.alt = product[productThree].name;
-  product[productThree].views++;
+  imgThree.src = allProducts[productThree].src;
+  imgThree.alt = allProducts[productThree].name;
+  allProducts[productThree].views++;
 }
 function renderResults() {
-  for (var i = 0; i < product.length; i++) {
+  for (var i = 0; i < allProducts.length; i++) {
     var li = document.createElement('li');
-    li.textContent = `${product[i].name} had ${product[i].votes} votes, and was seen ${product[i].views} times.`;
+    li.textContent = `${allProducts[i].name} had ${allProducts[i].votes} votes, and was seen ${allProducts[i].views} times.`;
     myList.appendChild(li);
   }
 }
 
 renderProduct();
 
+function grabData() {
+  for (var i = 0; i < allProducts.length; i++) {
+    votesArray.push(allProducts[i].votes);
+    viewsArray.push(allProducts[i].views);
+    nameArray.push(allProducts[i].name);
+  }
+}
+
 function handleClick(event) {
   var clickedProduct = event.target.alt;
   clicks++;
 
-  for (var i = 0; i < product.length; i++) {
-    if (clickedProduct === product[i].name) {
-      product[i].votes++;
+  for (var i = 0; i < allProducts.length; i++) {
+    if (clickedProduct === allProducts[i].name) {
+      allProducts[i].votes++;
     }
   }
 
   renderProduct();
   if (clicks === totalClicksAllowed) {
-    myContainer.removeEventListener('click',handleClick);
+    myContainer.removeEventListener('click', handleClick);
     renderResults();
+    makeChart();
+
   }
 }
 
+function makeChart() {
+  grabData();
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: nameArray,
+      datasets: [{
+        label: '# of Views',
+        data: viewsArray,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+}
 myContainer.addEventListener('click', handleClick);
