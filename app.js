@@ -59,12 +59,12 @@ if (retrievedResults) {
 
 
 function populateQue() {
-  while (renderQ.length > 3) {
-    renderQ.shift();
+  while (renderQ.length > 0) {
+    renderQ.pop();
   }
   while (renderQ.length < 6) {
     var item = randomItem();
-    while (renderQ.includes(item))
+    while (renderQ.includes(item)) {
       item = randomItem();
   }
   renderQ.push(item);
