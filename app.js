@@ -28,27 +28,47 @@ function getRandomProductIndex() {
   return Math.floor(Math.random() * allProducts.length);
 }
 
-// exectuable code
-new Product('bag');
-new Product('banana');
-new Product('bathroom');
-new Product('boots');
-new Product('breakfast');
-new Product('bubblegum');
-new Product('chair');
-new Product('cthulhu');
-new Product('dog-duck');
-new Product('dragon');
-new Product('pen');
-new Product('pet-sweep');
-new Product('scissors');
-new Product('shark');
-new Product('sweep');
-new Product('tauntaun');
-new Product('unicorn');
-new Product('usb');
-new Product('water-can');
-new Product('wine-glass');
+var retrievedResults = localStorage.getItem('productResults');
+
+if (retrievedResults) {
+  var parsedRetrievedResults = JSON.parse(retrievedResults);
+  allProducts = parsedRetrievedResults;
+} else {
+  // exectuable code
+  new Product('bag');
+  new Product('banana');
+  new Product('bathroom');
+  new Product('boots');
+  new Product('breakfast');
+  new Product('bubblegum');
+  new Product('chair');
+  new Product('cthulhu');
+  new Product('dog-duck');
+  new Product('dragon');
+  new Product('pen');
+  new Product('pet-sweep');
+  new Product('scissors');
+  new Product('shark');
+  new Product('sweep');
+  new Product('tauntaun');
+  new Product('unicorn');
+  new Product('usb');
+  new Product('water-can');
+  new Product('wine-glass');
+}
+
+
+function populateQue() {
+  while (renderQ.length > 3) {
+    renderQ.shift();
+  }
+  while (renderQ.length < 6) {
+    var item = randomItem();
+    while (renderQ.includes(item))
+      item = randomItem();
+  }
+  renderQ.push(item);
+}
 
 function renderProduct() {
   var productOne = getRandomProductIndex();
@@ -101,9 +121,11 @@ function handleClick(event) {
   renderProduct();
   if (clicks === totalClicksAllowed) {
     myContainer.removeEventListener('click', handleClick);
-    renderResults();
     makeChart();
+    renderResults();
 
+    var stringifiedResults = JSON.stringify(allProducts);
+    localStorage.setItem('productResults', stringifiedResults);
   }
 }
 
@@ -116,6 +138,27 @@ function makeChart() {
       datasets: [{
         label: '# of Views',
         data: viewsArray,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)',
+        ],
+        borderWidth: 1,
+      },
+      {
+        label: '# of Votes',
+        data: votesArray,
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
           'rgba(54, 162, 235, 0.2)',
@@ -141,9 +184,10 @@ function makeChart() {
           ticks: {
             beginAtZero: true
           }
-        }]
+        }],
       }
     }
   });
 }
+
 myContainer.addEventListener('click', handleClick);
